@@ -61,13 +61,6 @@ public class BloomFilterTest {
         assertTrue("b does have \"other\"", b.mightHave(test));
     }
 
-    @Test
-    public void test_count(){
-        assertEquals("Incorrect number of elements in filter", 1, a.count());
-        assertEquals("Incorrect number of elements in filter", 5, b.count());
-        assertEquals("Incorrect number of elements in filter", 0, c.count());
-    }
-
 
     @Test
     public void test_hashes_for(){
@@ -95,4 +88,14 @@ public class BloomFilterTest {
         assertTrue("Copy constructor does not produce a copy (.equals)", a.equals(copy));
     }
 
+
+    @Test
+    public void test_join(){
+        BloomFilter<String> deg = new BloomFilter<String>(a);
+        deg.deterministicDegradation();
+        assertTrue("Bloom filter copy it's not degraded", deg.sum() < a.sum());
+
+        BloomFilter<String> joined = BloomFilter.join(a, deg);
+        assertTrue("Incorrect Bloom filter join" + joined.toString(), joined.equals(a));
+    }
 }

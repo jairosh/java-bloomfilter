@@ -58,7 +58,6 @@ public class BloomFilter<T> implements Serializable{
     private static final int     DEFAULT_MAX_COUNT = 64;
 
     private Integer expectedNumberOfElements;
-    private Integer numberOfElementsAdded;
 
     private Integer counters;         //m
     private Integer hashFunctions;    //k
@@ -95,7 +94,6 @@ public class BloomFilter<T> implements Serializable{
         this.maxCounterValue = c;
         this.hashFunctions = k;
 
-        numberOfElementsAdded = 0;
         //Expected number of elements to achieve a 1% false positive probability
         expectedNumberOfElements = (int)Math.floor( -((double)m/(double)k) * Math.log(1 - Math.pow(0.1, 1/((double)k))));
     }
@@ -107,23 +105,19 @@ public class BloomFilter<T> implements Serializable{
     public BloomFilter(BloomFilter other){
         this(other.counters, other.hashFunctions, other.maxCounterValue);
         this.array = other.array.clone();
-        this.numberOfElementsAdded = other.numberOfElementsAdded;
         this.expectedNumberOfElements = other.expectedNumberOfElements;
     }
 
     /**
      * Adds an element to the Bloom filter representation
      * @param element the element to be added
-     * @return true if the expected number of elements has not been reached. false otherwise
      */
-    public boolean add(T element){
+    public void add(T element){
 
         List<Integer> indexes = hashesFor(element);
         for(Integer i : indexes){
             this.array[i] = this.maxCounterValue;
         }
-        this.numberOfElementsAdded++;
-        return expectedNumberOfElements > numberOfElementsAdded;
     }
 
     /**
@@ -134,7 +128,7 @@ public class BloomFilter<T> implements Serializable{
 
         for(int i=0; i<counters; i++){
             int theThrow = r.nextInt(1000);
-            if(((float)theThrow/1000.0) < dPr){
+            if(((float)theThrow/1000.0) < dPr && this.array[i] > 0){
                 this.array[i]--;
             }
         }
@@ -146,9 +140,28 @@ public class BloomFilter<T> implements Serializable{
      */
     public void deterministicDegradation(){
         for(int i=0; i<counters; i++){
-            this.array[i]--;
+            if(this.array[i] > 0)
+                this.array[i]--;
         }
     }
+
+
+    /**
+     * Joins two Bloom Filters
+     * @param bf1 The first Bloom Filter
+     * @param bf2 The second Bloom filter
+     * @return The resulting Bloom filter or null if the arguments are incompatible
+     */
+    public static BloomFilter join(BloomFilter bf1, BloomFilter bf2){
+        if(bf1.counters != bf2.counters) return null;
+
+        BloomFilter result = new BloomFilter(bf1.counters, bf1.hashFunctions, bf1.maxCounterValue);
+        for(int i=0; i<  bf1.counters; i++){
+            result.array[i] = bf1.array[i] > bf2.array[i] ? bf1.array[i] : bf2.array[i];
+        }
+        return result;
+    }
+
 
     /**
      * Tests if a certain element might be in this Bloom filter (Keep in mind the false positive probability)
@@ -197,13 +210,6 @@ public class BloomFilter<T> implements Serializable{
         return hashes;
     }
 
-    /**
-     * Gets the current number of elements added to this Bloom filter
-     * @return The count of elements in this Bloom filter
-     */
-    public int count(){
-        return this.numberOfElementsAdded;
-    }
 
     /**
      * Calculates the false positive probability for this Bloom filter
@@ -263,7 +269,6 @@ public class BloomFilter<T> implements Serializable{
         if(this.counters != other.counters) return false;
         if(this.hashFunctions != other.hashFunctions) return false;
         if(this.maxCounterValue != other.maxCounterValue) return false;
-        if(this.numberOfElementsAdded != other.numberOfElementsAdded) return false;
 
         for(int i=0; i<counters; i++){
             if(this.array[i] != other.array[i]) return false;
