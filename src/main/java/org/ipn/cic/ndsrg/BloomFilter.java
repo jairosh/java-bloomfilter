@@ -123,7 +123,7 @@ public class BloomFilter<T> implements Serializable{
     /**
      * Degrades the information contained in this filter stochastically
      */
-    public void stochasticDegrade(float dPr){
+    public void stochasticDegrade(double dPr){
         Random r = new Random(SEED);
 
         for(int i=0; i<counters; i++){
