@@ -34,13 +34,11 @@
             <groupId>com.github.tnm</groupId>
             <artifactId>murmurhash-java</artifactId>
             <version>482b824</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.jakedouglas</groupId>
             <artifactId>fnv-java</artifactId>
             <version>0b2cb55</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

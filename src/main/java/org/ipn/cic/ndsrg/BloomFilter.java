@@ -183,7 +183,7 @@ public class BloomFilter<T> implements Serializable{
      * @return The current value of the counter
      */
     public Integer counterAt(Integer index) throws IndexOutOfBoundsException{
-        if(index < this.counters && index > 0)
+        if(index < this.counters && index >= 0)
             return array[index];
         else
             throw new IndexOutOfBoundsException("The specified counter does not exist on this Bloom filter");
