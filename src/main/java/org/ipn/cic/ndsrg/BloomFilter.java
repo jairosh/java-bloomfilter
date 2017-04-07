@@ -163,6 +163,17 @@ public class BloomFilter<T> implements Serializable{
     }
 
 
+    public void join(BloomFilter<T> other) throws InvalidObjectException {
+        if(other.counters != this.counters)
+            throw new InvalidObjectException("Incompatible Bloom filters. Incorrect number of counters");
+        if(other.maxCounterValue != this.maxCounterValue)
+            throw new InvalidObjectException("Incompatible Bloom filters. Max. value for each counter is incompatible");
+
+        for(int i=0; i<  other.counters; i++){
+            this.array[i] = Math.max(this.array[i], other.array[i]);
+        }
+    }
+
     /**
      * Tests if a certain element might be in this Bloom filter (Keep in mind the false positive probability)
      * @param element the element to be tested
