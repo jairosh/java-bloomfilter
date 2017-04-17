@@ -271,6 +271,13 @@ public class BloomFilter<T> implements Serializable{
                 '}';
     }
 
+    /**
+     * Creates a reduced string representation of this filter. It only includes the filter per se, without the parameters
+     * @return The reduced string representation of this filter
+     */
+    public String toReducedString(){
+        return Arrays.toString(array);
+    }
 
     @Override
     public boolean equals(Object obj) {
