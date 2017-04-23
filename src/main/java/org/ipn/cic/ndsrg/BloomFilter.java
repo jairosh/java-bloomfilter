@@ -164,8 +164,10 @@ public class BloomFilter<T> implements Serializable{
 
 
     public void join(BloomFilter<T> other) throws InvalidObjectException {
-        if(other.counters != this.counters)
-            throw new InvalidObjectException("Incompatible Bloom filters. Incorrect number of counters");
+        if(other.counters != this.counters) {
+            String msg = "(" + other.counters + " != " + this.counters + ")";
+            throw new InvalidObjectException("Incompatible Bloom filters. Incorrect number of counters. " + msg);
+        }
         if(other.maxCounterValue != this.maxCounterValue)
             throw new InvalidObjectException("Incompatible Bloom filters. Max. value for each counter is incompatible");
 
@@ -317,5 +319,22 @@ public class BloomFilter<T> implements Serializable{
         }
         s+="]";
         System.out.println(s);
+    }
+
+
+    public Integer getExpectedNumberOfElements() {
+        return expectedNumberOfElements;
+    }
+
+    public Integer getCounters() {
+        return counters;
+    }
+
+    public Integer getHashFunctions() {
+        return hashFunctions;
+    }
+
+    public Integer getMaxCounterValue() {
+        return maxCounterValue;
     }
 }
