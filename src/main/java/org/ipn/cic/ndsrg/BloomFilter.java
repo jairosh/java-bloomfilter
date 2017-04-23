@@ -153,7 +153,8 @@ public class BloomFilter<T> implements Serializable{
      * @return The resulting Bloom filter or null if the arguments are incompatible
      */
     public static BloomFilter join(BloomFilter bf1, BloomFilter bf2){
-        if(bf1.counters != bf2.counters) return null;
+        if(!bf1.counters.equals(bf2.counters)) return null;
+        if(!bf1.maxCounterValue.equals(bf2.maxCounterValue)) return null;
 
         BloomFilter result = new BloomFilter(bf1.counters, bf1.hashFunctions, bf1.maxCounterValue);
         for(int i=0; i<  bf1.counters; i++){
@@ -164,14 +165,14 @@ public class BloomFilter<T> implements Serializable{
 
 
     public void join(BloomFilter<T> other) throws InvalidObjectException {
-        if(other.counters != this.counters) {
+        if(!other.counters.equals(this.counters)) {
             String msg = "(" + other.counters + " != " + this.counters + ")";
             throw new InvalidObjectException("Incompatible Bloom filters. Incorrect number of counters. " + msg);
         }
-        if(other.maxCounterValue != this.maxCounterValue)
+        if(!other.maxCounterValue.equals(this.maxCounterValue))
             throw new InvalidObjectException("Incompatible Bloom filters. Max. value for each counter is incompatible");
 
-        for(int i=0; i<  other.counters; i++){
+        for(int i=0; i<  other.counters.intValue(); i++){
             this.array[i] = Math.max(this.array[i], other.array[i]);
         }
     }
@@ -286,9 +287,9 @@ public class BloomFilter<T> implements Serializable{
         if(obj.getClass() != BloomFilter.class) return false;
         BloomFilter other = (BloomFilter)obj;
 
-        if(this.counters != other.counters) return false;
-        if(this.hashFunctions != other.hashFunctions) return false;
-        if(this.maxCounterValue != other.maxCounterValue) return false;
+        if(!this.counters.equals(other.counters)) return false;
+        if(!this.hashFunctions.equals(other.hashFunctions)) return false;
+        if(!this.maxCounterValue.equals(other.maxCounterValue)) return false;
 
         for(int i=0; i<counters; i++){
             if(this.array[i] != other.array[i]) return false;
